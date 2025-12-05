@@ -11,7 +11,7 @@ const {
 } = Astro.props
 ---
 
-<article class='grid grid-rows-[300px_auto] md:grid-rows-[300px_220px] min-h-full group'>
+<article class='grid grid-rows-[300px_auto] md:grid-rows-[300px_auto] min-h-full group'>
 	<a class='relative overflow-hidden' href={`/post/${slug}/`}>
 		<Image
 			src={heroImage}
@@ -43,14 +43,14 @@ const {
 				</a>
 			</div>
 
-			<p
+			<!-- <p
 				class='overflow-hidden line-clamp-3 text-gray-700 dark:text-white mb-5 font-[400] md:pr-[15%]'
 			>
 				{description}
-			</p>
+			</p> -->
 		</div>
 
-		<footer class='flex justify-between items-center'>
+		<!-- <footer class='flex justify-between items-center'>
 			<a
 				href={`/post/${slug}/`}
 				class='flex justify-center items-center dark:text-white rounded-full hover:translate-x-1 transition-transform duration-150 ease-in-out font-semibold gap-1 group'
@@ -61,7 +61,7 @@ const {
 					><ArrowUp width='18' height='18' /></span
 				>
 			</a>
-		</footer>
+		</footer> -->
 	</div>
 </article>
 

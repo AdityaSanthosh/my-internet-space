@@ -14,7 +14,11 @@ export const getCategories = async () => {
 export const getPosts = async (max?: number) => {
 	return (await getCollection('blog'))
 		.filter((post) => !post.data.draft)
-		.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+		.sort((a, b) => {
+			const aDate = a.data.updatedDate || a.data.pubDate
+			const bDate = b.data.updatedDate || b.data.pubDate
+			return bDate.valueOf() - aDate.valueOf()
+		})
 		.slice(0, max)
 }
 
@@ -51,3 +55,23 @@ export const filterPostsByCategory = async (category: string) => {
 		.filter((post) => post.data.category.toLowerCase() === category)
 }
 
+export const getFeaturedPosts = async () => {
+	return (await getCollection('blog'))
+		.filter((post) => !post.data.draft && post.data.featured)
+		.sort((a, b) => {
+			const aDate = a.data.updatedDate || a.data.pubDate
+			const bDate = b.data.updatedDate || b.data.pubDate
+			return bDate.valueOf() - aDate.valueOf()
+		})
+}
+
+export const getLatestNonFeaturedPosts = async (max?: number) => {
+	return (await getCollection('blog'))
+		.filter((post) => !post.data.draft && !post.data.featured)
+		.sort((a, b) => {
+			const aDate = a.data.updatedDate || a.data.pubDate
+			const bDate = b.data.updatedDate || b.data.pubDate
+			return bDate.valueOf() - aDate.valueOf()
+		})
+		.slice(0, max)
+}

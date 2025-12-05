@@ -3,20 +3,30 @@ import ListCategories from '@/components/ListCategories'
 import ListPosts from '@/components/ListPosts'
 import TitlePage from '@/components/TitlePage'
 import BaseLayout from '@/layouts/BaseLayout'
-import { getPosts } from '@/utils'
+import { getFeaturedPosts, getLatestNonFeaturedPosts } from '@/utils'
 import { siteConfig } from '@/site-config'
 
 const MAX_POSTS = 5 // max number of posts to show on the home page
-const posts = await getPosts(MAX_POSTS)
+const featuredPosts = await getFeaturedPosts()
+const latestPosts = await getLatestNonFeaturedPosts(MAX_POSTS)
 ---
 
 <BaseLayout title='Home'>
 	<TitlePage title={siteConfig.title} />
 	<ListCategories />
 
+	{
+		featuredPosts.length > 0 && (
+			<div class='mb-10'>
+				<h2 class='text-lg font-medium tracking-wide text-end mb-4'>Featured Posts ⭐</h2>
+				<ListPosts FirstBig={true} posts={featuredPosts} />
+			</div>
+		)
+	}
+
 	<div>
 		<h2 class='text-lg font-medium tracking-wide text-end'>Latest Posts</h2>
-		<ListPosts FirstBig={true} posts={posts} />
+		<ListPosts FirstBig={true} posts={latestPosts} />
 	</div>
 </BaseLayout>
 

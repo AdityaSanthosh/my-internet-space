@@ -3,13 +3,14 @@ import mdx from '@astrojs/mdx'
 import sitemap from '@astrojs/sitemap'
 import tailwind from '@astrojs/tailwind'
 import { remarkReadingTime } from './src/utils/readTime.ts'
+import { remarkModifiedTime } from './src/utils/plugins/remarkModifiedTime.ts'
 import { siteConfig } from './src/data/site.config'
 
 // https://astro.build/config
 export default defineConfig({
 	site: siteConfig.site,
 	markdown: {
-		remarkPlugins: [remarkReadingTime],
+		remarkPlugins: [remarkReadingTime, remarkModifiedTime],
 		drafts: true,
 		shikiConfig: {
 			theme: 'material-theme-palenight',
@@ -22,8 +23,8 @@ export default defineConfig({
 			shikiConfig: {
 				experimentalThemes: {
 					light: 'vitesse-light',
-					dark: 'material-theme-palenight',
-				  },
+					dark: 'material-theme-palenight'
+				},
 				wrap: true
 			},
 			drafts: true

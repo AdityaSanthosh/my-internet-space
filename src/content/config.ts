@@ -12,11 +12,6 @@ const blog = defineCollection({
 				.string()
 				.or(z.date())
 				.transform((val) => new Date(val)),
-			updatedDate: z
-				.string()
-				.or(z.date())
-				.transform((val) => new Date(val))
-				.optional(),
 			heroImage: image(),
 			category: z.enum(CATEGORIES),
 			tags: z.array(z.string()),

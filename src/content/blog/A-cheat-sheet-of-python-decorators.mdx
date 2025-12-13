@@ -1,0 +1,143 @@
+---
+heroImage: /src/assets/images/Screenshot 2025-12-11 at 5.12.39 PM.png
+category: Programming
+description: Just a cheat sheet. Might make a detailed post later
+pubDate: 2025-05-19T18:30:00.000Z
+tags:
+  - upskilling
+  - python
+  - cheatsheet
+title: 'Python Decorators Cheatsheet '
+---
+
+### 1. What is a Decorator?
+
+In the simplest terms, a **decorator** is a **callable** (usually a function) that takes another function as an argument, adds new functionality to it, and returns the modified function, without explicitly altering the source code of the original function.
+
+This concept relies on two core Python principles:
+
+1.  **Everything is an Object:** Functions in Python are first-class objects, meaning they can be passed as arguments to other functions, returned from functions, and assigned to variables.
+2.  **Closures:** Functions can remember the values of variables from their enclosing scope, even if that scope has finished executing.
+
+---
+
+### 2. The `@` Syntax (Syntactic Sugar)
+
+The `@decorator_name` syntax is just **syntactic sugar** for passing a function through a decorator function explicitly.
+
+**Standard Function Definition:**
+
+```python
+def greet():
+    ...
+greet = my_decorator(greet)
+```
+
+**Decorator Syntax:**
+
+```python
+@my_decorator
+def greet():
+    ...
+```
+
+In both examples, the function `greet` is _passed_ to `my_decorator`, and the result (the modified function) is _assigned back_ to the name `greet`.
+
+---
+
+### 3. Anatomy of a Decorator
+
+A typical decorator involves a nested function structure, often called a **closure**.
+
+```python
+# The Decorator function
+def my_decorator(func):
+    # The Wrapper function: This is the function that replaces the original.
+    def wrapper(*args, **kwargs):
+        # 1. SETUP / PRE-PROCESSING (Executed before the original function)
+        print(f"Executing before {func.__name__}...")
+
+        # 2. CALL ORIGINAL FUNCTION
+        result = func(*args, **kwargs)
+
+        # 3. CLEANUP / POST-PROCESSING (Executed after the original function)
+        print(f"Executing after {func.__name__}...")
+
+        # 4. Return the result of the original function
+        return result
+
+    # The decorator returns the wrapper function, replacing the original.
+    return wrapper
+
+# The application
+@my_decorator
+def say_hello(name):
+    print(f"Hello, {name}!")
+    return f"Done saying hello to {name}"
+
+# Calling the decorated function
+say_hello("Alice")
+```
+
+---
+
+### 4. Important: Preserving Metadata (The `functools.wraps`)
+
+When you use the structure above, the original function's name, docstring, and argument list are replaced by those of the inner `wrapper` function.
+
+This is bad for debugging and introspection. To fix this, you must use the **`@functools.wraps`** decorator on your inner `wrapper` function.
+
+```python
+import functools
+
+def logging_decorator(func):
+    # This copies the name, docstring, etc., from 'func' to 'wrapper'
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        # ... decorator logic ...
+        return func(*args, **kwargs)
+    return wrapper
+```
+
+---
+
+### 5\. Decorators with Arguments
+
+Sometimes you need to pass arguments to the decorator itself (e.g., specifying how many times to retry a function). This requires an extra layer of nesting.
+
+1.  **Outermost function:** Takes the decorator arguments (e.g., `num_retries`).
+2.  **Decorator function (Middle):** Takes the function to be decorated (`func`).
+3.  **Wrapper function (Innermost):** Takes the arguments of the decorated function (`*args, **kwargs`).
+
+```python
+def repeat(num_times):
+    # 1. Outermost layer: Takes decorator arguments (e.g., 3)
+    def decorator_repeat(func):
+        # 2. Middle layer: Takes the function being decorated
+        def wrapper(*args, **kwargs):
+            # 3. Innermost layer: Logic using both num_times and func
+            for _ in range(num_times):
+                func(*args, **kwargs)
+
+        return wrapper
+    return decorator_repeat # Returns the middle function
+
+@repeat(num_times=3) # The outer function is called first: repeat(3) returns decorator_repeat
+def cheer(name):
+    print(f"Go, {name}!")
+
+# This will print "Go, Bob!" three times.
+cheer("Bob")
+```
+
+---
+
+### 6\. Common Real-World Use Cases 🚀
+
+| Use Case                | Description                                                                                                                                 | Example                             |
+| :---------------------- | :------------------------------------------------------------------------------------------------------------------------------------------ | :---------------------------------- |
+| **Logging**             | Records function calls, arguments, and return values for debugging.                                                                         | `@log_calls`                        |
+| **Timing/Profiling**    | Calculates the execution time of a function to identify bottlenecks.                                                                        | `@timer`                            |
+| **Authorization**       | Checks if the user is logged in or has the necessary permissions before running a view/method (common in web frameworks like Flask/Django). | `@login_required`                   |
+| **Caching/Memoization** | Stores the results of expensive function calls and returns the cached result when the same inputs occur again.                              | `@functools.lru_cache(maxsize=...)` |
+| **Retries**             | Automatically retries a function a set number of times if it fails due to a temporary error (like a network timeout).                       | `@retry_on_exception`               |

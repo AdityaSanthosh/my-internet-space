@@ -1,0 +1,61 @@
+---
+heroImage: /src/assets/images/scaling-cover-image.png
+category: Programming
+description: The term scaling is too broad. What should you scale and how?
+pubDate: 2026-01-16T18:30:00.000Z
+tags:
+  - scaling
+  - distributed-systems
+title: Scaling Factors - Distributed Systems 101
+---
+
+Ever since, I have learned about event-driven systems, I started thinking of scaling only in-terms of ***queue size***
+
+\>If the queue size grows past certain number of records, we can say that the consumers are falling behind. We should spin up more workers if we want to keep our end-to-end latency low. (Make sure to see that queue doesn't get filled up fast or else you will see new requests dropping)
+
+This works well if you want to process large numbers of light weight tasks (like simple external third party calls), but now I realised it actually depends on the workload. If your workload involves math or media, such as AI training, complex statistics, simulations, audio processing, video processing, the bottleneck is usually ***CPU/GPU***, ***RAM***(if you are holding large volumes of data), ***disk space*** and no.of IO Operations Per second(**IOPS**) if you are writing to disk or dealing with peripherals. Here scaling is slightly challenging, adding more worker nodes alone won't help alone.
+
+For instance, if you need to **scale memory/RAM**, you would implement any of the following techniques
+
+1. Spill to disk if your memory is full (or) spill periodically to disk
+2. distribute work amongst several other nodes so that individual nodes won't hold large amounts of memory. You can collect them later. (Spark Model)
+3. Don't store the data in-memory, instead externalize it to a fast lookup external store like redis (the data is ephemeral anyway)
+4. Pause the workload, write the data to disk, spawn a new/bigger machine and pickup work from there (Checkpoints, vertical scaling)
+5. Re-architect your program so that it uses less data. Maybe trade additional memory for slightly slower performance
+6. Don't leak memory in your program, clean up objects and variables that go out of scope. Some languages do this automatically. If you want more control in your program, you can choose languages like C++, Rust that require you to explicitly manage your program memory. Either do any of those or have a Garbage Collector that kicks in periodically.
+
+Notice, how all of the alone requires re-architecting the application or code. That's why scaling memory is hard
+
+Similarly If you need to **scale CPU**, here are the fundamental principles
+
+1. Reduce the no of instructions that a CPU must execute
+2. Reduce the time taken to execute each instruction
+3. Reduce the CPU waiting/blocked time
+4. Bring the data close to CPU
+5. Execute multiple instructions in a single cycle (Superpipelining)
+6. Utilise all the cores available in the system (Multiprocessing)
+7. Look ahead (Branch Prediction) and out of order instructions execution
+
+Here are some real world strategies to implement some of the above principles
+
+1. Algorithmic Optimisations
+2. Use a performance oriented language like C++, Rust
+3. Produce efficient binaries and machine code instructions
+   1. For instance, with compiler flags, you can tell the compiler to use modern CPU instructions like AVX-512(vectorization) which can produce multiple data points in a single clock cycle
+4. Scale CPU Vertically; use a CPU which has a higher clock speed (5 GHz vs 3.6 GHz) or Overclock the existing CPU
+5. Checkpointing
+6. Distribute and collect
+7. Use special hardware that brings data close to CPU (using CPU caches, GPUs, TPUs that are specifically designed for matrix multiplications)
+8. Multi processing
+
+*Note: CPU bottlenecks manifest themselves in the form of lag/increased latency. Memory however has a higher limit. If you hit that limit (RAM is full), the program crashes. Typically home PCs have swap enabled which spills the RAM contents to disk, but I am not sure if servers are configured that way usually.*
+
+Now let's look at **scaling IO**
+
+1. Special hardware that can handle more IO operations per second
+2. Sharding and partitioning; By splitting the load between multiple instances, you increase the throughput and latency potentially
+3. Asynchronous IO so that the program is not blocked waiting for IO response
+4. Reducing IOPS through request batching and coalescing
+5. Moving data closer physically to CDNs and edges
+
+I am skipping **disk scaling** since storage became cheap and all of the above principles apply to disk space as well

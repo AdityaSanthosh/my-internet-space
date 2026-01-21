@@ -7,14 +7,13 @@ tags:
   - scaling
   - distributed-systems
 title: Scaling Factors - Distributed Systems 101
-featured: true
 ---
 
-Ever since, I have learned about event-driven systems, I started thinking of scaling only in-terms of ***queue size***
+Ever since, I have learned about event-driven systems, I started thinking of scaling only in-terms of **_queue size_**
 
 \>If the queue size grows past certain number of records, we can say that the consumers are falling behind. We should spin up more workers if we want to keep our end-to-end latency low. (Make sure to see that queue doesn't get filled up fast or else you will see new requests dropping)
 
-This works well if you want to process large numbers of light weight tasks (like simple external third party calls), but now I realised it actually depends on the workload. If your workload involves math or media, such as AI training, complex statistics, simulations, audio processing, video processing, the bottleneck is usually ***CPU/GPU***, ***RAM***(if you are holding large volumes of data), ***disk space*** and no.of IO Operations Per second(**IOPS**) if you are writing to disk or dealing with peripherals. Here scaling is slightly challenging, adding more worker nodes alone won't help alone.
+This works well if you want to process large numbers of light weight tasks (like simple external third party calls), but now I realised it actually depends on the workload. If your workload involves math or media, such as AI training, complex statistics, simulations, audio processing, video processing, the bottleneck is usually **_CPU/GPU_**, **_RAM_**(if you are holding large volumes of data), **_disk space_** and no.of IO Operations Per second(**IOPS**) if you are writing to disk or dealing with peripherals. Here scaling is slightly challenging, adding more worker nodes alone won't help alone.
 
 For instance, if you need to **scale memory/RAM**, you would implement any of the following techniques
 
@@ -49,7 +48,7 @@ Here are some real world strategies to implement some of the above principles
 7. Use special hardware that brings data close to CPU (using CPU caches, GPUs, TPUs that are specifically designed for matrix multiplications)
 8. Multi processing
 
-*Note: CPU bottlenecks manifest themselves in the form of lag/increased latency. Memory however has a higher limit. If you hit that limit (RAM is full), the program crashes. Typically home PCs have swap enabled which spills the RAM contents to disk, but I am not sure if servers are configured that way usually.*
+_Note: CPU bottlenecks manifest themselves in the form of lag/increased latency. Memory however has a higher limit. If you hit that limit (RAM is full), the program crashes. Typically home PCs have swap enabled which spills the RAM contents to disk, but I am not sure if servers are configured that way usually._
 
 Now let's look at **scaling IO**
 
@@ -58,5 +57,6 @@ Now let's look at **scaling IO**
 3. Asynchronous IO so that the program is not blocked waiting for IO response
 4. Reducing IOPS through request batching and coalescing
 5. Moving data closer physically to CDNs and edges
+6. Always optimize for sequential I/O (especially reading/writing data on disks)
 
 I am skipping **disk scaling** since storage became cheap and all of the above principles apply to disk space as well
